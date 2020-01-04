@@ -3,8 +3,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 
 import 'form_drop_down.dart';
 
-void main() =>
-    runApp(MyApp(
+void main() => runApp(MyApp(
       child: MyHomePage(title: 'Hook Compose Demo'),
     ));
 
@@ -40,12 +39,22 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final _formKey = GlobalKey<FormBuilderState>();
 
+  List<String> data1;
+  List<String> data2;
   String selected1;
   String selected2;
 
   @override
+  void initState() {
+    getMockData().then((data) => setState(() => data1 = data));
+    getMockData().then((data) => setState(() => data2 = data));
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final hasValue = selected1 != null && selected2 != null;
+    print('rendered');
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -59,36 +68,26 @@ class _MyHomePageState extends State<MyHomePage> {
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.all(10),
-                child: FutureBuilder(
-                  future: getMockData(),
-                  builder: (_, snapshot) {
-                    return AnimatedSwitcher(
-                      duration: Duration(milliseconds: 400),
-                      child: snapshot.hasData
-                          ? FormDropDown(
-                        options: withSort(snapshot.data),
-                        attribute: 'selector1',
-                      )
-                          : CircularProgressIndicator(),
-                    );
-                  },
+                child: AnimatedSwitcher(
+                  duration: Duration(milliseconds: 400),
+                  child: data1 != null
+                      ? FormDropDown(
+                          options: withSort(data1),
+                          attribute: 'selector1',
+                        )
+                      : CircularProgressIndicator(),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.all(10),
-                child: FutureBuilder(
-                  future: getMockData(),
-                  builder: (_, snapshot) {
-                    return AnimatedSwitcher(
-                      duration: Duration(milliseconds: 400),
-                      child: snapshot.hasData
-                          ? FormDropDown(
-                        options: withSortDescending(snapshot.data),
-                        attribute: 'selector2',
-                      )
-                          : CircularProgressIndicator(),
-                    );
-                  },
+                child: AnimatedSwitcher(
+                  duration: Duration(milliseconds: 400),
+                  child: data2 != null
+                      ? FormDropDown(
+                          options: withSortDescending(data2),
+                          attribute: 'selector2',
+                        )
+                      : CircularProgressIndicator(),
                 ),
               ),
               if (hasValue) Text('Selected is $selected1 and $selected2'),
