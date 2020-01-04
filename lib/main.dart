@@ -39,21 +39,25 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final _formKey = GlobalKey<FormBuilderState>();
 
-  List<String> data1;
-  List<String> data2;
-  String selected1;
-  String selected2;
+  ValueNotifier<List<String>> data1 = ValueNotifier(null);
+  ValueNotifier<List<String>> data2 = ValueNotifier(null);
+
+  ValueNotifier<String> selected1 = ValueNotifier(null);
+  ValueNotifier<String> selected2 = ValueNotifier(null);
 
   @override
   void initState() {
-    getMockData().then((data) => setState(() => data1 = data));
-    getMockData().then((data) => setState(() => data2 = data));
+    getMockData()
+        .then((data) => withSort(data))
+        .then((data) => data1.value = data);
+    getMockData()
+        .then((data) => withSortDescending(data))
+        .then((data) => data2.value = data);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final hasValue = selected1 != null && selected2 != null;
     print('rendered');
     return Scaffold(
       appBar: AppBar(
@@ -68,38 +72,53 @@ class _MyHomePageState extends State<MyHomePage> {
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.all(10),
-                child: AnimatedSwitcher(
-                  duration: Duration(milliseconds: 400),
-                  child: data1 != null
-                      ? FormDropDown(
-                          options: withSort(data1),
-                          attribute: 'selector1',
-                        )
-                      : CircularProgressIndicator(),
+                child: ValueListenableBuilder(
+                  valueListenable: data1,
+                  builder: (_, value, child) => AnimatedSwitcher(
+                    duration: Duration(milliseconds: 400),
+                    child: value != null
+                        ? FormDropDown(
+                            options: value,
+                            attribute: 'selector1',
+                          )
+                        : CircularProgressIndicator(),
+                  ),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.all(10),
-                child: AnimatedSwitcher(
-                  duration: Duration(milliseconds: 400),
-                  child: data2 != null
-                      ? FormDropDown(
-                          options: withSortDescending(data2),
-                          attribute: 'selector2',
-                        )
-                      : CircularProgressIndicator(),
+                child: ValueListenableBuilder(
+                  valueListenable: data2,
+                  builder: (_, value, child) => AnimatedSwitcher(
+                    duration: Duration(milliseconds: 400),
+                    child: value != null
+                        ? FormDropDown(
+                            options: value,
+                            attribute: 'selector2',
+                          )
+                        : CircularProgressIndicator(),
+                  ),
                 ),
               ),
-              if (hasValue) Text('Selected is $selected1 and $selected2'),
+              ValueListenableBuilder(
+                valueListenable: selected1,
+                builder: (_, value, child) => ValueListenableBuilder(
+                  valueListenable: selected2,
+                  builder: (_, value2, child) {
+                    if (value != null && value2 != null) {
+                      return Text('Selected is $value and $value2');
+                    }
+                    return Container();
+                  },
+                ),
+              ),
               MaterialButton(
                 key: Key('my button'),
                 child: Text('selected'),
                 onPressed: () {
                   if (_formKey.currentState.saveAndValidate()) {
-                    setState(() {
-                      selected1 = _formKey.currentState.value['selector1'];
-                      selected2 = _formKey.currentState.value['selector2'];
-                    });
+                    selected1.value = _formKey.currentState.value['selector1'];
+                    selected2.value = _formKey.currentState.value['selector2'];
                   }
                 },
               )
