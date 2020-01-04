@@ -26,22 +26,6 @@ void main() {
     expect(sorted, ['k', 'j', 'c', 'b', 'a']);
   });
 
-  testWidgets(
-      'dropDownWithList should return Circular progressbar if data is null',
-      (WidgetTester tester) async {
-    final widget = dropDownWithList('key1')(null);
-    await tester.pumpWidget(widget);
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
-  });
-
-  testWidgets('dropDownWithList should return Dropdown if data is available',
-      (WidgetTester tester) async {
-    final widget = dropDownWithList('key1')(['a', 'b']);
-    await tester.pumpWidget(makeTestableWidget(Scaffold(body: widget)));
-    expect(find.byKey(Key('key1-a')), findsOneWidget);
-    expect(find.byKey(Key('key1-b')), findsOneWidget);
-  });
-
   testWidgets('Smoke test whole app', (WidgetTester tester) async {
     final widget = MyHomePage(title: 'Hook Compose Demo');
     await tester.pumpWidget(makeTestableWidget(Scaffold(body: widget)));

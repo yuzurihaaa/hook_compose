@@ -1,11 +1,10 @@
-import 'package:compose/compose.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 
 import 'form_drop_down.dart';
 
-void main() => runApp(MyApp(
+void main() =>
+    runApp(MyApp(
       child: MyHomePage(title: 'Hook Compose Demo'),
     ));
 
@@ -29,31 +28,27 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends HookWidget {
+class MyHomePage extends StatefulWidget {
   final String title;
 
   const MyHomePage({this.title});
 
   @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  final _formKey = GlobalKey<FormBuilderState>();
+
+  String selected1;
+  String selected2;
+
+  @override
   Widget build(BuildContext context) {
-    final _formKey = useFormKey();
-    final Widget firstDropDown =
-        c() >> useApi >> withSort >> dropDownWithList('state accending') <
-            getMockData;
-    final Widget secondDropDown = c() >>
-            useApi >>
-            withSortDescending >>
-            dropDownWithList('state decending') <
-        getMockData;
-
-    final selected1 = useState('');
-    final selected2 = useState('');
-
-    final bool hasValue =
-        selected1.value.isNotEmpty && selected2.value.isNotEmpty;
+    final hasValue = selected1 != null && selected2 != null;
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: Text(widget.title),
       ),
       body: Center(
         child: FormBuilder(
@@ -62,19 +57,50 @@ class MyHomePage extends HookWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              firstDropDown,
-              secondDropDown,
-              if (hasValue)
-                Text('Selected is ${selected1.value} and ${selected2.value}'),
+              Padding(
+                padding: const EdgeInsets.all(10),
+                child: FutureBuilder(
+                  future: getMockData(),
+                  builder: (_, snapshot) {
+                    return AnimatedSwitcher(
+                      duration: Duration(milliseconds: 400),
+                      child: snapshot.hasData
+                          ? FormDropDown(
+                        options: withSort(snapshot.data),
+                        attribute: 'selector1',
+                      )
+                          : CircularProgressIndicator(),
+                    );
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10),
+                child: FutureBuilder(
+                  future: getMockData(),
+                  builder: (_, snapshot) {
+                    return AnimatedSwitcher(
+                      duration: Duration(milliseconds: 400),
+                      child: snapshot.hasData
+                          ? FormDropDown(
+                        options: withSortDescending(snapshot.data),
+                        attribute: 'selector2',
+                      )
+                          : CircularProgressIndicator(),
+                    );
+                  },
+                ),
+              ),
+              if (hasValue) Text('Selected is $selected1 and $selected2'),
               MaterialButton(
                 key: Key('my button'),
                 child: Text('selected'),
                 onPressed: () {
                   if (_formKey.currentState.saveAndValidate()) {
-                    selected1.value =
-                        _formKey.currentState.value['state accending'];
-                    selected2.value =
-                        _formKey.currentState.value['state decending'];
+                    setState(() {
+                      selected1 = _formKey.currentState.value['selector1'];
+                      selected2 = _formKey.currentState.value['selector2'];
+                    });
                   }
                 },
               )
@@ -87,24 +113,6 @@ class MyHomePage extends HookWidget {
 }
 
 typedef MockApi = Future<List<String>> Function();
-
-GlobalKey<FormBuilderState> useFormKey() {
-  return useState(GlobalKey<FormBuilderState>()).value;
-}
-
-Widget Function(List<String>) dropDownWithList(String attribute) =>
-    (List<String> datas) => Padding(
-          padding: EdgeInsets.all(10),
-          child: AnimatedSwitcher(
-            duration: Duration(milliseconds: 400),
-            child: datas == null
-                ? CircularProgressIndicator()
-                : FormDropDown(
-                    attribute: attribute,
-                    options: datas,
-                  ),
-          ),
-        );
 
 List<String> withSort(List<String> strings) {
   if (strings == null) {
@@ -124,13 +132,8 @@ List<String> withSortDescending(List<String> strings) {
   return currentList;
 }
 
-List<String> useApi(MockApi api) {
-  final memo = useMemoized(api);
-
-  final data = useFuture(memo);
-
-  return data.data;
+Future<List<String>> getMockData() {
+  print("fetched");
+  return Future.delayed(
+      const Duration(seconds: 2), () => ['Malaysia', 'Indonesia', 'Singapore']);
 }
-
-Future<List<String>> getMockData() => Future.delayed(
-    const Duration(seconds: 2), () => ['Malaysia', 'Indonesia', 'Singapore']);

@@ -17,7 +17,6 @@ class FormDropDown extends StatelessWidget {
       ],
       formField: FormField(
         enabled: true,
-        initialValue: options[0],
         builder: (FormFieldState<dynamic> field) {
           return InputDecorator(
             decoration: InputDecoration(
