@@ -19,6 +19,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('rendered');
     return MaterialApp(
       title: 'Hook Compose Demo',
       theme: ThemeData(
@@ -38,13 +39,11 @@ class MyHomePage extends HookWidget {
   Widget build(BuildContext context) {
     final _formKey = useFormKey();
     final Widget firstDropDown =
-        c() >> useApi >> withSort >> dropDownWithList('state accending') <
+        c() >> useApi >> sortAscending >> dropDownWithList('state accending') <
             getMockData;
-    final Widget secondDropDown = c() >>
-            useApi >>
-            withSortDescending >>
-            dropDownWithList('state decending') <
-        getMockData;
+    final Widget secondDropDown =
+        c() >> useApi >> sortDescending >> dropDownWithList('state decending') <
+            getMockData;
 
     final selected1 = useState('');
     final selected2 = useState('');
@@ -106,7 +105,7 @@ Widget Function(List<String>) dropDownWithList(String attribute) =>
           ),
         );
 
-List<String> withSort(List<String> strings) {
+List<String> sortAscending(List<String> strings) {
   if (strings == null) {
     return null;
   }
@@ -115,7 +114,7 @@ List<String> withSort(List<String> strings) {
   return currentList;
 }
 
-List<String> withSortDescending(List<String> strings) {
+List<String> sortDescending(List<String> strings) {
   if (strings == null) {
     return null;
   }
@@ -132,5 +131,8 @@ List<String> useApi(MockApi api) {
   return data.data;
 }
 
-Future<List<String>> getMockData() => Future.delayed(
-    const Duration(seconds: 2), () => ['Malaysia', 'Indonesia', 'Singapore']);
+Future<List<String>> getMockData() {
+  print("triggered");
+  return Future.delayed(
+      const Duration(seconds: 2), () => ['Malaysia', 'Indonesia', 'Singapore']);
+}

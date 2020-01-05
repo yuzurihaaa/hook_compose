@@ -16,13 +16,13 @@ Widget makeTestableWidget(Widget child) => MyApp(
 void main() {
   test('WithSort should sort alphabetically', () {
     final unsorted = 'b,j,a,k,c'.split(',');
-    final sorted = withSort(unsorted);
+    final sorted = sortAscending(unsorted);
     expect(sorted, ['a', 'b', 'c', 'j', 'k']);
   });
 
   test('WithSortDecending should sort alphabetically', () {
     final unsorted = 'b,j,a,k,c'.split(',');
-    final sorted = withSortDescending(unsorted);
+    final sorted = sortDescending(unsorted);
     expect(sorted, ['k', 'j', 'c', 'b', 'a']);
   });
 
