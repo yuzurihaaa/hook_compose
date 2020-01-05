@@ -5,7 +5,8 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 
 import 'form_drop_down.dart';
 
-void main() => runApp(MyApp(
+void main() =>
+    runApp(MyApp(
       child: MyHomePage(title: 'Hook Compose Demo'),
     ));
 
@@ -19,7 +20,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('rendered');
     return MaterialApp(
       title: 'Hook Compose Demo',
       theme: ThemeData(
@@ -38,18 +38,6 @@ class MyHomePage extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final _formKey = useFormKey();
-    final Widget firstDropDown =
-        c() >> useApi >> sortAscending >> dropDownWithList('state accending') <
-            getMockData;
-    final Widget secondDropDown =
-        c() >> useApi >> sortDescending >> dropDownWithList('state decending') <
-            getMockData;
-
-    final selected1 = useState('');
-    final selected2 = useState('');
-
-    final bool hasValue =
-        selected1.value.isNotEmpty && selected2.value.isNotEmpty;
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
@@ -61,20 +49,55 @@ class MyHomePage extends HookWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              firstDropDown,
-              secondDropDown,
-              if (hasValue)
-                Text('Selected is ${selected1.value} and ${selected2.value}'),
-              MaterialButton(
-                key: Key('my button'),
-                child: Text('selected'),
-                onPressed: () {
-                  if (_formKey.currentState.saveAndValidate()) {
-                    selected1.value =
-                        _formKey.currentState.value['state accending'];
-                    selected2.value =
-                        _formKey.currentState.value['state decending'];
-                  }
+              HookBuilder(
+                builder: (_) {
+                  final Widget firstDropDown = c() >>
+                      useApi >>
+                      sortAscending >>
+                      dropDownWithList('state accending') <
+                      getMockData;
+
+                  return firstDropDown;
+                },
+              ),
+              HookBuilder(
+                builder: (_) {
+                  final Widget secondDropDown = c() >>
+                      useApi >>
+                      sortDescending >>
+                      dropDownWithList('state decending') <
+                      getMockData;
+
+                  return secondDropDown;
+                },
+              ),
+              HookBuilder(
+                builder: (_) {
+                  final selected1 = useState('');
+                  final selected2 = useState('');
+
+                  final bool hasValue =
+                      selected1.value.isNotEmpty && selected2.value.isNotEmpty;
+
+                  return Column(
+                    children: <Widget>[
+                      if (hasValue)
+                        Text('Selected is ${selected1.value} and ${selected2
+                            .value}'),
+                      MaterialButton(
+                        key: Key('my button'),
+                        child: Text('selected'),
+                        onPressed: () {
+                          if (_formKey.currentState.saveAndValidate()) {
+                            selected1.value =
+                            _formKey.currentState.value['state accending'];
+                            selected2.value =
+                            _formKey.currentState.value['state decending'];
+                          }
+                        },
+                      )
+                    ],
+                  );
                 },
               )
             ],
@@ -92,16 +115,17 @@ GlobalKey<FormBuilderState> useFormKey() {
 }
 
 Widget Function(List<String>) dropDownWithList(String attribute) =>
-    (List<String> datas) => Padding(
+        (List<String> datas) =>
+        Padding(
           padding: EdgeInsets.all(10),
           child: AnimatedSwitcher(
             duration: Duration(milliseconds: 400),
             child: datas == null
                 ? CircularProgressIndicator()
                 : FormDropDown(
-                    attribute: attribute,
-                    options: datas,
-                  ),
+              attribute: attribute,
+              options: datas,
+            ),
           ),
         );
 
