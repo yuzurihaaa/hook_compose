@@ -38,6 +38,7 @@ class MyHomePage extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final _formKey = useFormKey();
+    print('rendered');
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
