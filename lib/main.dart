@@ -73,7 +73,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: data1 != null
                       ? FormDropDown(
                           options: withSort(data1),
-                          attribute: 'selector1',
+                          attribute: 'state accending',
                         )
                       : CircularProgressIndicator(),
                 ),
@@ -85,7 +85,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: data2 != null
                       ? FormDropDown(
                           options: withSortDescending(data2),
-                          attribute: 'selector2',
+                          attribute: 'state decending',
                         )
                       : CircularProgressIndicator(),
                 ),
@@ -97,8 +97,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 onPressed: () {
                   if (_formKey.currentState.saveAndValidate()) {
                     setState(() {
-                      selected1 = _formKey.currentState.value['selector1'];
-                      selected2 = _formKey.currentState.value['selector2'];
+                      selected1 =
+                          _formKey.currentState.value['state accending'];
+                      selected2 =
+                          _formKey.currentState.value['state decending'];
                     });
                   }
                 },
