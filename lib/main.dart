@@ -45,6 +45,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    print('rendered');
     final hasValue = selected1 != null && selected2 != null;
     return Scaffold(
       appBar: AppBar(
