@@ -109,8 +109,6 @@ class MyHomePage extends HookWidget {
   }
 }
 
-typedef MockApi = Future<List<String>> Function();
-
 GlobalKey<FormBuilderState> useFormKey() {
   return useState(GlobalKey<FormBuilderState>()).value;
 }
@@ -148,7 +146,9 @@ List<String> sortDescending(List<String> strings) {
   return currentList;
 }
 
-List<String> useApi(MockApi api) {
+typedef MockApi<T> = Future<T> Function();
+
+T useApi<T>(MockApi<T> api) {
   final memo = useMemoized(api);
 
   final data = useFuture(memo);
